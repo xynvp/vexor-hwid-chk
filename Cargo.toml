@@ -1,0 +1,10 @@
+[workspace]
+members = ["crates/desktop-core", "apps/hwid-chk/src-tauri", "apps/hwid-admin/src-tauri"]
+resolver = "2"
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true
+opt-level = "s"
+panic = "abort"

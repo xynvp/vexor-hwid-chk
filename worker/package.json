@@ -1,0 +1,23 @@
+{
+  "name": "hwid-worker",
+  "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --ip 127.0.0.1 --port 8787",
+    "check": "tsc --noEmit",
+    "build": "esbuild src/index.ts --bundle --format=esm --platform=browser --target=es2022 --outfile=generated/worker.js",
+    "test": "npm run build && vitest run",
+    "db:local": "wrangler d1 migrations apply hwid-db --local",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20251004.0",
+    "wrangler": "^4.42.0",
+    "miniflare": "5.20261001.0-alpha",
+    "esbuild": "^0.25.10",
+    "vitest": "^4.1.11",
+    "@types/node": "^22.18.8"
+  }
+}

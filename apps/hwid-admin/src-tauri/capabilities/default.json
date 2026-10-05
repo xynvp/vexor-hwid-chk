@@ -1,0 +1,14 @@
+{
+  "identifier": "default",
+  "description": "Local utility window. Network and machine access stay in Rust.",
+  "windows": [
+    "main"
+  ],
+  "permissions": [
+    "core:default",
+    "core:window:allow-start-dragging",
+    "core:window:allow-minimize",
+    "core:window:allow-close",
+    "core:window:allow-toggle-maximize"
+  ]
+}

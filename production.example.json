@@ -1,0 +1,7 @@
+{
+  "endpoint": "https://your-worker.your-subdomain.workers.dev",
+  "worker": "vexor-hwid-verification",
+  "account_id": "YOUR_CLOUDFLARE_ACCOUNT_ID",
+  "database": "hwid-db",
+  "database_id": "YOUR_D1_DATABASE_ID"
+}

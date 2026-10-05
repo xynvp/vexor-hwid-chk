@@ -1,0 +1,4 @@
+ENVIRONMENT=development
+HWID_FINGERPRINT_SECRET=replace-with-at-least-32-random-bytes
+# Optional for local development; put a real webhook ONLY in .dev.vars or Cloudflare secrets.
+DISCORD_WEBHOOK_URL=

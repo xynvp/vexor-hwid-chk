@@ -1,0 +1,22 @@
+name = "vexor-hwid-verification"
+main = "src/index.ts"
+compatibility_date = "2026-10-05"
+workers_dev = true
+
+[vars]
+ENVIRONMENT = "production"
+ALLOWED_ORIGINS = ""
+
+[[d1_databases]]
+binding = "DB"
+database_name = "hwid-db"
+# Replace with the ID returned by `wrangler d1 create hwid-db` for deployment.
+# This placeholder is sufficient for local development.
+database_id = "00000000-0000-0000-0000-000000000000"
+migrations_dir = "migrations"
+
+[triggers]
+crons = ["* * * * *"]
+
+[observability]
+enabled = false

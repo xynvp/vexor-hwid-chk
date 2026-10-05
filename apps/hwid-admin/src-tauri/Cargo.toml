@@ -1,0 +1,15 @@
+[package]
+name = "hwid-admin"
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+
+[features]
+custom-protocol = ["tauri/custom-protocol"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+desktop-core = { path = "../../../crates/desktop-core" }
+tauri = { version = "2", features = [] }

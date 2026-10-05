@@ -1,0 +1,35 @@
+{
+  "name": "vexor-hwid-verification",
+  "private": true,
+  "license": "MIT",
+  "version": "1.0.0",
+  "type": "module",
+  "workspaces": [
+    "worker",
+    "apps/hwid-chk",
+    "apps/hwid-admin"
+  ],
+  "scripts": {
+    "check": "npm run check --workspaces",
+    "build": "npm run build --workspaces",
+    "test": "npm run test -w worker",
+    "test:desktop": "node scripts/test-desktop.mjs",
+    "test:release": "node scripts/test-desktop.mjs --release-smoke",
+    "build:desktop-test": "npm run tauri -w apps/hwid-admin -- build --debug --no-bundle && npm run tauri -w apps/hwid-chk -- build --debug --no-bundle",
+    "dev:worker": "npm run dev -w worker",
+    "dev:admin": "npm run tauri -w apps/hwid-admin -- dev",
+    "dev:checker": "npm run tauri -w apps/hwid-chk -- dev",
+    "db:local": "npm run db:local -w worker",
+    "init:local": "node scripts/init-local.mjs",
+    "admin:create": "node scripts/create-admin.mjs",
+    "release": "node scripts/release.mjs",
+    "test:production": "node scripts/test-production.mjs",
+    "provision:production": "node scripts/provision-production.mjs"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.9.0",
+    "@tauri-apps/api": "^2.9.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.1.9"
+  }
+}
