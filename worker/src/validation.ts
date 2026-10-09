@@ -15,8 +15,8 @@ export function string(value: unknown, min: number, max: number, pattern?: RegEx
 }
 export function preview(value: unknown): string {
   // Whitespace is harmless when staff pastes the panel value.
-  if (typeof value !== 'string' || value.length > 100) throw new ApiError(400, 'invalid_request');
-  return string(normalize_preview(value), 21, 21, /^[a-f0-9]{14}…[a-f0-9]{6}$/);
+  if (typeof value !== 'string' || value.length > 1024) throw new ApiError(400, 'invalid_request');
+  return string(normalize_preview(value), 1, 1024, /^[a-fA-F0-9]+(?:…[a-fA-F0-9]+)?$/);
 }
 export function identity(value: unknown): Identity {
   const v = object(value, ['machine_guid','volume_serial','computer_name','windows_install_date','windows_product','windows_version','windows_build','checker_version']);

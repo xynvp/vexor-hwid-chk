@@ -2,7 +2,7 @@
 
 Open an issue for a bug or proposed change, or send a pull request with a focused fix.
 
-Follow the local development setup in [readme.md](readme.md). Build the frontends before running workspace Rust tests on a fresh checkout.
+Follow the local development setup in [README.md](README.md). Build the frontends before running workspace Rust tests on a fresh checkout.
 
 Before submitting changes, run the checks relevant to your work:
 

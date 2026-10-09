@@ -2,7 +2,7 @@ import { constant_equal, hmac, password_verify, random_code, random_token, sha25
 import { ApiError, body, identity, object, preview, string } from './validation';
 import { active, deliver_webhooks, get_session, heartbeat, maintenance, mutate, notification, now, online, public_session, settle } from './session_service';
 import type { Env, Session } from './types';
-import { license_key_length, license_key_pattern } from '../../shared/license';
+import { license_key_max_length, license_key_pattern } from '../../shared/license';
 
 function json(data: unknown, status = 200): Response {
   return new Response(JSON.stringify(data), { status, headers: { 'content-type': 'application/json', 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'strict-transport-security': 'max-age=31536000' } });
@@ -62,7 +62,7 @@ async function route(req: Request, env: Env, ctx: ExecutionContext): Promise<Res
       const v = object(await body(req), ['vexor_username','vexor_uid','license_key','old_hwid_preview','note']);
       const time = now(), id = crypto.randomUUID();
       const values = { vexor_username: string(v.vexor_username, 1, 64), vexor_uid: string(v.vexor_uid, 1, 32, /^[0-9]+$/),
-        license_key: string(typeof v.license_key === 'string' ? v.license_key.trim() : v.license_key, license_key_length, license_key_length, new RegExp(`^${license_key_pattern}$`)), old_hwid_preview: preview(v.old_hwid_preview), note: string(typeof v.note === 'string' ? v.note.replace(/\r?\n/g, ' ') : v.note ?? '', 0, 1000) };
+        license_key: string(typeof v.license_key === 'string' ? v.license_key.trim() : v.license_key, 1, license_key_max_length, new RegExp(`^${license_key_pattern}$`)), old_hwid_preview: preview(v.old_hwid_preview), note: string(typeof v.note === 'string' ? v.note.replace(/\r?\n/g, ' ') : v.note ?? '', 0, 1000) };
       for (let attempt = 0; attempt < 4; attempt++) {
         const code = random_code();
         try {

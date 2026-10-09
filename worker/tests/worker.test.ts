@@ -84,15 +84,30 @@ describe('real Worker and D1 integration', () => {
     expect(checker.status).toBe(200);
     expect(JSON.stringify(checker.data)).not.toContain(license_key);
   });
-  it('accepts pasted full keys and rejects suffixes, truncated keys and malformed keys',async()=>{
+  it('accepts pasted keys and rejects missing or malformed keys',async()=>{
     const payload = {vexor_username:'key-validation',vexor_uid:'25404',old_hwid_preview:'a18c88219d41ab…44a921'};
     const pasted = await call('/api/admin/sessions','POST',{...payload,license_key:`  ${license_key.toLowerCase()}\n`},admin);
     expect(pasted.status).toBe(201);
     expect(pasted.data.session.license_key).toBe(license_key.toLowerCase());
-    for (const key of [undefined, null, 123, '', 'F8B3', 'VXP-****-****-F8B3', license_key.slice(0,-5), license_key+'-1234', license_key.replace('0000','G000'), license_key.replace('0000','00 0'), license_key.replace('VXP','ABC')]) {
+    for (const key of [undefined, null, 123, '', 'F8B3', 'VXP-', 'VXP-ABCD-', 'VXP-****-****-F8B3', 'VXP-'+'A'.repeat(1024), license_key.replace('0000','G000'), license_key.replace('0000','00 0'), license_key.replace('VXP','ABC')]) {
       expect((await call('/api/admin/sessions','POST',{...payload,license_key:key},admin)).status).toBe(400);
     }
     expect((await call('/api/admin/sessions','POST',{...payload,license_suffix:'F8B3'},admin)).status).toBe(400);
+  });
+  it('stores shorter and longer keys and HWID previews without fixed group or character counts',async()=>{
+    const keys = ['VXP-A', 'VXP-0000-1111-2222-3333-4444-5555', license_key+'-ABCD-EF01', 'VXP-0123456789ABCDEF-1'];
+    const previews = ['a', 'abc…de', '0123456789abcdef'.repeat(2)+'0123456789a', 'a'.repeat(128)];
+    for (let index=0;index<keys.length;index++) {
+      const response = await call('/api/admin/sessions','POST',{vexor_username:'variable-length-test',vexor_uid:'25404',license_key:keys[index],old_hwid_preview:previews[index]},admin);
+      expect(response.status).toBe(201);
+      const session = (await detail(response.data.session.id)).session;
+      expect(session.license_key).toBe(keys[index]);
+      expect(session.old_hwid_preview).toBe(previews[index]);
+      expect(mask_license_key(session.license_key)).toBe(`VXP-****-****-${keys[index].split('-').at(-1)!.slice(-4)}`);
+    }
+    for(const value of ['', ' ', null, 'not-a-hwid', 'ab…cd…ef', 'a'.repeat(1025)]) {
+      expect((await call('/api/admin/sessions','POST',{vexor_username:'invalid-preview',vexor_uid:'25404',license_key,old_hwid_preview:value},admin)).status).toBe(400);
+    }
   });
   it('migrates suffix-only sessions without losing history or breaking verification',async()=>{
     const d = await detail(legacy_id);

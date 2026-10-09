@@ -90,25 +90,28 @@ try {
   await until(()=>execute(admin,`return Boolean(document.querySelector('#new'))`),'admin authenticated');
   mkdirSync('test-data',{recursive:true});
   for(const match of [true,false]) {
+    const session_key = match ? 'VXP-0000-1111-2222-3333-4444-F8B3' : license_key+'-9999-F8B3';
+    const old_preview = match ? '0123456789abcdef'.repeat(2)+'0123456789a' : 'a'.repeat(128);
     await click(admin,'#new');
     assert.equal(await execute(admin,`return document.querySelector('label[for="license_key"]').textContent`),'License key');
     await fill(admin,'#license_key','F8B3');
     assert.equal(await execute(admin,`return document.querySelector('#license_key').checkValidity()`),false,'Suffix-only input must be rejected');
-    for(const [field,value] of Object.entries({vexor_username:'xynr',vexor_uid:'25404',license_key,old_hwid_preview:'a18c88219d41ab…44a921',note:'Automated desktop workflow'})) await fill(admin,`#${field}`,value);
+    for(const [field,value] of Object.entries({vexor_username:'xynr',vexor_uid:'25404',license_key:session_key,old_hwid_preview:old_preview,note:'Automated desktop workflow'})) await fill(admin,`#${field}`,value);
     assert.equal(await execute(admin,`return document.querySelector('#license_key').checkValidity()`),true,'Full key must be accepted');
     await click(admin,'#create button');
     const s=await until(async()=> {
       const result=await db.prepare("SELECT * FROM verification_sessions WHERE status = 'active' AND first_connected_at IS NULL ORDER BY created_at DESC LIMIT 1").first();
       return result || false;
     },'session created');
-    assert.equal(s.license_key,license_key,'D1 stores the complete key');
-    await until(()=>execute(admin,`return Boolean(document.querySelector('#detail [data-copy="${license_key}"]'))`),'full license key copy control');
-    assert.equal(await execute(admin,`return document.querySelector('#detail [data-copy="${license_key}"]').previousElementSibling.textContent`),license_key,'Detail displays the complete key');
-    await click(admin,`#detail [data-copy="${license_key}"]`);
+    assert.equal(s.license_key,session_key,'D1 stores the complete variable-length key');
+    assert.equal(s.old_hwid_preview,old_preview,'D1 stores the complete variable-length preview');
+    await until(()=>execute(admin,`return Boolean(document.querySelector('#detail [data-copy="${session_key}"]'))`),'full license key copy control');
+    assert.equal(await execute(admin,`return document.querySelector('#detail [data-copy="${session_key}"]').previousElementSibling.textContent`),session_key,'Detail displays the complete key');
+    await click(admin,`#detail [data-copy="${session_key}"]`);
     await until(()=>execute(admin,`return document.querySelector('.toast')?.textContent === 'Copied to clipboard'`),'license key clipboard copy');
     // Read through Windows to avoid a browser clipboard-read permission prompt.
     const clipboard = execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-Command','Get-Clipboard -Raw'],{encoding:'utf8',windowsHide:true}).trim();
-    assert.equal(clipboard,license_key,'Clipboard contains the complete key');
+    assert.equal(clipboard,session_key,'Clipboard contains the complete key');
     assert.equal(await execute(admin,`const app=document.querySelector('#app'); return app.scrollWidth > app.clientWidth;`),false,'Full key detail has no horizontal overflow');
     if (match) await screenshot(admin,'admin-license-key');
     const checker=await open_app('hwid-chk',4446);
@@ -146,7 +149,7 @@ try {
     await click(admin,'#back');
     await until(()=>execute(admin,`return Boolean(document.querySelector('#new'))`),'dashboard returned');
     await until(()=>execute(admin,`return Boolean(document.querySelector('.session-meta')?.textContent.includes('VXP-****-****-F8B3'))`),'masked key in session list');
-    assert.equal(await execute(admin,`return document.querySelector('#sessions').textContent.includes('${license_key}')`),false,'Session list masks the key');
+    assert.equal(await execute(admin,`return document.querySelector('#sessions').textContent.includes('${session_key}')`),false,'Session list masks the key');
     console.log(`Real desktop workflow passed: ${match?'MATCH':'MISMATCH'}`);
   }
   // Verify the native checker handles retired/expired authorization as terminal.
